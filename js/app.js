@@ -26,7 +26,7 @@ var locationList = [
 	lat: "35.227832",
 	lng: "-80.839238",
 	type: "Bar"
-}
+}];
 
 var Model = function() {
 	var self = this;
@@ -39,7 +39,7 @@ var Model = function() {
 	this.type = ko.observable(data.type);
 
 
-]};
+};
 
 var ViewModel = function () {
 	var self = this;
