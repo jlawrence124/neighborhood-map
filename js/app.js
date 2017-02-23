@@ -30,8 +30,7 @@ var Model = function(data) {
 
 	this.name = ko.observable(data.name);
 	this.address = ko.observable(data.address);
-	this.lat = ko.observable(data.lat);
-	this.lng = ko.observable(data.lng);
+	this.latlng = ko.observable(data.latlng);
 	this.type = ko.observable(data.type);
 
 };
@@ -42,21 +41,20 @@ var ViewModel = function () {
 	//blank array for all the markers used
 	var markers = [];
 
-	var locations = [];
-
 	//blank array for all locations
 	this.location = ko.observableArray([]);
 
 	//TO DO:  FIX THIS FOREACH LOOP
 	//push each location to a new observableArray
-/*	locationList.forEach(function(location){
-		self.locationList.push(new Model(location));
+	locationList.forEach(function(data){
+		self.location.push(data);
 	});
-*/
+
 	//google maps Autocomplete.  this has to change to only Autocomplete what's on list to start
 	var searchAutocomplete = new google.maps.places.Autocomplete(
 		document.getElementById('search-bar'));
 
+	//make new styled marker
 	function makeMarkerIcon(markerColor) {
 		var markerImage = new google.maps.MarkerImage(
 		  'http://chart.googleapis.com/chart?chst=d_map_spin&chld=1.15|0|'+ markerColor +
@@ -73,16 +71,16 @@ var ViewModel = function () {
  	// mouse over icon
      var highlightedIcon = makeMarkerIcon('FFFFFF');
 
+	 var infoWindow = new google.maps.InfoWindow({
+	  content: "test"
+	 });
+
 	//create an array of markers on initialize
 	for (var i = 0; i < locationList.length; i++) {
 		//get the position from the location array
 
-		/* TO DO:  FIX LOOP FOR ALL values
-		/*for (var key in locationList) {
-			//var key = locations[i].value;
-		}; */
-
 		var position = locationList[i].latlng;
+		console.log(position);
 		var name = locationList[i].name;
 		var address = locationList[i].address;
 
@@ -104,10 +102,12 @@ var ViewModel = function () {
 		marker.addListener('mouseout', function() {
 		  this.setIcon(defaultIcon);
 		});
+		marker.addListener('click', function() {
+            populateInfoWindow(this, infoWindow);
+          });
 	}
-	console.log(defaultIcon)
 	// Loop through markers and display them
-	  function showMarkers() {
+	function showMarkers() {
 	    var bounds = new google.maps.LatLngBounds();
 	    // Extend the boundaries of the map for each marker and display the marker
 	    for (var i = 0; i < markers.length; i++) {
@@ -115,25 +115,28 @@ var ViewModel = function () {
 	      bounds.extend(markers[i].position);
 	    }
 	    map.fitBounds(bounds);
-	  }
+	 }
+	 showMarkers();
+	 function populateInfoWindow(marker, infowindow) {
+		 if (infowindow.marker != marker) {
+			 infowindow.marker = marker;
+			 infowindow.open(map, marker);
+			 infowindow.addListener('closeclick', function() {
+				 infowindow.marker = null;
+			 });
+		 	}
+	 	}
 
 	 //tie show markers to the DOM
-  	document.getElementById('show-markers').addEventListener('click', showMarkers);
-
-
+  	//document.getElementById('show-markers');
 };
-
 
 var View = function () {
 	var self = this;
 
 
 
-
 };
-
-
-
 
 //declaring global map variable
 var map;
@@ -149,4 +152,6 @@ var map;
 	console.log('starting map');
 })();
 
+//ko.applyBindings(new Model());
 ko.applyBindings(new ViewModel());
+//ko.applyBindings(new View());

@@ -2,3 +2,6 @@
     height: 400px;
     width: 80%;
 }
+#featured ul {
+    list-style: none;
+}
