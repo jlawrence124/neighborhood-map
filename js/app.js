@@ -24,23 +24,8 @@ var locationList = [
 	type: "Bar"
 }];
 
-
-var Model = function(data) {
-	var self = this;
-
-	this.name = ko.observable(data.name);
-	this.address = ko.observable(data.address);
-	this.latlng = ko.observable(data.latlng);
-	this.type = ko.observable(data.type);
-
-};
-
 var ViewModel = function () {
 	var self = this;
-
-	//blank array for all the markers used
-	var markers = [];
-
 	//blank array for all locations
 	this.location = ko.observableArray([]);
 
@@ -50,28 +35,33 @@ var ViewModel = function () {
 		self.location.push(data);
 	});
 
-	//google maps Autocomplete.  this has to change to only Autocomplete what's on list to start
-	var searchAutocomplete = new google.maps.places.Autocomplete(
-		document.getElementById('search-bar'));
+	 //tie show markers to the DOM
+  	//document.getElementById('show-markers');
+};
 
-	//make new styled marker
-	function makeMarkerIcon(markerColor) {
-		var markerImage = new google.maps.MarkerImage(
-		  'http://chart.googleapis.com/chart?chst=d_map_spin&chld=1.15|0|'+ markerColor +
-		  '|40|_|%E2%80%A2',
-		  new google.maps.Size(21, 34),
-		  new google.maps.Point(0, 0),
-		  new google.maps.Point(10, 34),
-		  new google.maps.Size(21,34));
-		return markerImage;
-	};
- 	// Styling the marker
+//declaring global map variable
+var map,
+	infoWindow;
+
+var markers = [];
+
+function initMap() {
+
+	// Create new google map
+	map = new google.maps.Map(document.getElementById('map'), {
+	  center: {lat: 35.2271, lng: -80.8431},
+	  zoom: 14
+	});
+
+	console.log('starting map');
+
+	// Styling the marker
      var defaultIcon = makeMarkerIcon('DC143C');
 
  	// mouse over icon
      var highlightedIcon = makeMarkerIcon('FFFFFF');
 
-	 var infoWindow = new google.maps.InfoWindow({
+	 infoWindow = new google.maps.InfoWindow({
 	  content: "test"
 	 });
 
@@ -104,53 +94,49 @@ var ViewModel = function () {
 		});
 		marker.addListener('click', function() {
             populateInfoWindow(this, infoWindow);
-          });
+        });
 	}
-	// Loop through markers and display them
-	function showMarkers() {
-	    var bounds = new google.maps.LatLngBounds();
-	    // Extend the boundaries of the map for each marker and display the marker
-	    for (var i = 0; i < markers.length; i++) {
-	      markers[i].setMap(map);
-	      bounds.extend(markers[i].position);
-	    }
-	    map.fitBounds(bounds);
-	 }
-	 showMarkers();
-	 function populateInfoWindow(marker, infowindow) {
-		 if (infowindow.marker != marker) {
-			 infowindow.marker = marker;
-			 infowindow.open(map, marker);
-			 infowindow.addListener('closeclick', function() {
-				 infowindow.marker = null;
-			 });
-		 	}
-	 	}
 
-	 //tie show markers to the DOM
-  	//document.getElementById('show-markers');
+	showMarkers();
+
+	//google maps Autocomplete.  this has to change to only Autocomplete what's on list to start
+	var searchAutocomplete = new google.maps.places.Autocomplete(
+		document.getElementById('search-bar'));
+
+}
+
+//make new styled marker
+function makeMarkerIcon(markerColor) {
+	var markerImage = new google.maps.MarkerImage(
+	  'http://chart.googleapis.com/chart?chst=d_map_spin&chld=1.15|0|'+ markerColor +
+	  '|40|_|%E2%80%A2',
+	  new google.maps.Size(21, 34),
+	  new google.maps.Point(0, 0),
+	  new google.maps.Point(10, 34),
+	  new google.maps.Size(21,34));
+	return markerImage;
 };
 
-var View = function () {
-	var self = this;
+// Loop through markers and display them
+function showMarkers() {
+    var bounds = new google.maps.LatLngBounds();
+    // Extend the boundaries of the map for each marker and display the marker
+    for (var i = 0; i < markers.length; i++) {
+      markers[i].setMap(map);
+      bounds.extend(markers[i].position);
+    }
+    map.fitBounds(bounds);
+}
 
-
-
-};
-
-//declaring global map variable
-var map;
-
-(function initMap() {
-
-	// Create new google map
-	map = new google.maps.Map(document.getElementById('map'), {
-	  center: {lat: 35.2271, lng: -80.8431},
-	  zoom: 14
-	});
-
-	console.log('starting map');
-})();
+function populateInfoWindow(marker, infowindow) {
+ 	if (infowindow.marker != marker) {
+		infowindow.marker = marker;
+		infowindow.open(map, marker);
+		infowindow.addListener('closeclick', function() {
+		 infowindow.marker = null;
+		});
+ 	}
+}
 
 //ko.applyBindings(new Model());
 ko.applyBindings(new ViewModel());
