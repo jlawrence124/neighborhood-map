@@ -30,9 +30,6 @@
 	}]
 };
 
-//declaring global selectedPlace variable and setting to inital value to avoid error
-var selectedPlace = ko.observable();
-
 
 
 var ViewModel = function () {
@@ -40,7 +37,7 @@ var ViewModel = function () {
 	//blank array for all locations
 	this.location = ko.observableArray([]);
 	this.locationId = ko.observableArray([]);
-
+    this.selectedPlace = ko.observable();
 
 	//TO DO:  FIX THIS FOREACH LOOP
 	//push each location to a new observableArray
@@ -48,11 +45,11 @@ var ViewModel = function () {
 		self.location.push(data);
 	});
 
-    selectedPlace.subscribe(function(newValue) {
+    this.selectedPlace.subscribe(function(newValue) {
 		if (newValue == undefined) {
 			console.log('blah');
 		} else {
-            console.log(selectedPlace().id);
+            console.log(self.selectedPlace().id);
             }
 	}, this);
 
@@ -111,7 +108,7 @@ function initMap() {
 
         function filterMarkers () {
             for (var i = 0; i < markers.length; i++) {
-                if (selectedPlace().id === marker.id.toString()) {
+                if (VM.selectedPlace().id === marker.id.toString()) {
                     console.log('match');
                     markers[i].setMap(map);
                 } else {
@@ -120,7 +117,7 @@ function initMap() {
                 }
             }
         };
-    
+
 
 		// Two event listeners - one for mouseover, one for mouseout,
 		// to change the colors back and forth.
@@ -161,8 +158,6 @@ function showMarkers() {
     map.fitBounds(bounds);
 };
 
-
-
 console.log(markers);
 
 function populateInfoWindow(marker, infowindow) {
@@ -175,4 +170,5 @@ function populateInfoWindow(marker, infowindow) {
  	}
 };
 
-ko.applyBindings(new ViewModel());
+var VM = new ViewModel();
+ko.applyBindings(VM);
