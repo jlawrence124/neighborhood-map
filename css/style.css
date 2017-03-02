@@ -5,3 +5,9 @@
 #featured ul {
     list-style: none;
 }
+.hidden {
+    display: none;
+}
+.showing {
+    color: red;
+}

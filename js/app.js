@@ -1,49 +1,72 @@
-var locationList = [
-{
-	name: "Midwood Smokehouse",
-	address: "1401 Central Ave, Charlotte, NC 28205",
-	latlng: {lat: 35.221024,  lng: -80.814854},
-	type: "Barbecue Restaurant"
-},
-{
-	name: "The Capital Grille",
-	address: "201 N Tryon St, Charlotte, NC 28202",
-	latlng: {lat: 35.228327,  lng: -80.841997},
-	type: "Classy"
-},
-{
-	name: "Rooftop 210",
-	address: "210 E Trade St B320, Charlotte, NC 28202",
-	latlng: {lat: 35.225317, lng: -80.842488},
-	type: "Bar"
-},
-{
-	name: "Lucky's Bar and Arcade",
-	address: "300 N College St #104, Charlotte, NC 28202",
-	latlng: {lat: 35.227832,  lng: -80.839238},
-	type: "Bar"
-}];
+ var Model = {
+	locationList: [
+	{
+		id: "0",
+		name: "Midwood Smokehouse",
+		address: "1401 Central Ave, Charlotte, NC 28205",
+		latlng: {lat: 35.221024,  lng: -80.814854},
+		type: "Barbecue"
+	},
+	{
+		id: "1",
+		name: "The Capital Grille",
+		address: "201 N Tryon St, Charlotte, NC 28202",
+		latlng: {lat: 35.228327,  lng: -80.841997},
+		type: "Classy"
+	},
+	{
+		id: "2",
+		name: "Rooftop 210",
+		address: "210 E Trade St B320, Charlotte, NC 28202",
+		latlng: {lat: 35.225317, lng: -80.842488},
+		type: "Bar"
+	},
+	{
+		id: "3",
+		name: "Lucky's Bar and Arcade",
+		address: "300 N College St #104, Charlotte, NC 28202",
+		latlng: {lat: 35.227832,  lng: -80.839238},
+		type: "Barcade"
+	}]
+};
+
+//declaring global selectedPlace variable
+var selectedPlace = ko.observable();
+
+
 
 var ViewModel = function () {
 	var self = this;
 	//blank array for all locations
 	this.location = ko.observableArray([]);
+	this.locationId = ko.observableArray([]);
+
 
 	//TO DO:  FIX THIS FOREACH LOOP
 	//push each location to a new observableArray
-	locationList.forEach(function(data){
+	Model.locationList.forEach(function(data){
 		self.location.push(data);
 	});
 
-	 //tie show markers to the DOM
-  	//document.getElementById('show-markers');
+    selectedPlace.subscribe(function(newValue) {
+		if (newValue == undefined) {
+			console.log('blah');
+		} else {
+            console.log(selectedPlace().id);
+            }
+	}, this);
+
 };
+
+
 
 //declaring global map variable
 var map,
 	infoWindow;
 
 var markers = [];
+
+
 
 function initMap() {
 
@@ -66,13 +89,12 @@ function initMap() {
 	 });
 
 	//create an array of markers on initialize
-	for (var i = 0; i < locationList.length; i++) {
+	for (var i = 0; i < Model.locationList.length; i++) {
 		//get the position from the location array
 
-		var position = locationList[i].latlng;
-		console.log(position);
-		var name = locationList[i].name;
-		var address = locationList[i].address;
+		var position = Model.locationList[i].latlng;
+		var name = Model.locationList[i].name;
+		var address = Model.locationList[i].address;
 
 		var marker = new google.maps.Marker({
 			position: position,
@@ -82,7 +104,19 @@ function initMap() {
 			id: i
 		})
 
+        console.log(position);
+
 		markers.push(marker);
+
+        // this function will connect the selectedplace and the markers
+        function filterMarkers () {
+            if (selectedPlace().id === this.id) {
+                console.log('match');
+            }
+        };
+
+
+
 
 		// Two event listeners - one for mouseover, one for mouseout,
 		// to change the colors back and forth.
@@ -94,15 +128,12 @@ function initMap() {
 		});
 		marker.addListener('click', function() {
             populateInfoWindow(this, infoWindow);
+            console.log(this.id);
+            console.log(selectedPlace().id);
         });
 	}
 
 	showMarkers();
-
-	//google maps Autocomplete.  this has to change to only Autocomplete what's on list to start
-	var searchAutocomplete = new google.maps.places.Autocomplete(
-		document.getElementById('search-bar'));
-
 }
 
 //make new styled marker
@@ -126,7 +157,7 @@ function showMarkers() {
       bounds.extend(markers[i].position);
     }
     map.fitBounds(bounds);
-}
+};
 
 function populateInfoWindow(marker, infowindow) {
  	if (infowindow.marker != marker) {
@@ -136,8 +167,6 @@ function populateInfoWindow(marker, infowindow) {
 		 infowindow.marker = null;
 		});
  	}
-}
+};
 
-//ko.applyBindings(new Model());
 ko.applyBindings(new ViewModel());
-//ko.applyBindings(new View());
