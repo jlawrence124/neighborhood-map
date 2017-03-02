@@ -31,7 +31,7 @@
 };
 
 //declaring global selectedPlace variable and setting to inital value to avoid error
-var selectedPlace = ko.observable(Model.locationList[1]);
+var selectedPlace = ko.observable();
 
 
 
@@ -65,8 +65,6 @@ var map,
 	infoWindow;
 
 var markers = [];
-
-
 
 function initMap() {
 
@@ -104,19 +102,25 @@ function initMap() {
 			id: i
 		});
 
-        console.log(position);
-
 		markers.push(marker);
 
+        console.log(markers);
+
+
         // this function will connect the selectedplace and the marker
+
         function filterMarkers () {
-            if (selectedPlace().id === this.id) {
-                console.log('match');
+            for (var i = 0; i < markers.length; i++) {
+                if (selectedPlace().id === marker.id.toString()) {
+                    console.log('match');
+                    markers[i].setMap(map);
+                } else {
+                    markers[i].setMap(null);
+                    console.log(markers[i]);
+                }
             }
         };
-
-
-
+    
 
 		// Two event listeners - one for mouseover, one for mouseout,
 		// to change the colors back and forth.
@@ -128,8 +132,6 @@ function initMap() {
 		});
 		marker.addListener('click', function() {
             populateInfoWindow(this, infoWindow);
-            console.log(this.id);
-            console.log(selectedPlace().id);
         });
 	}
 
@@ -158,6 +160,10 @@ function showMarkers() {
     }
     map.fitBounds(bounds);
 };
+
+
+
+console.log(markers);
 
 function populateInfoWindow(marker, infowindow) {
  	if (infowindow.marker != marker) {
