@@ -30,8 +30,8 @@
 	}]
 };
 
-//declaring global selectedPlace variable
-var selectedPlace = ko.observable();
+//declaring global selectedPlace variable and setting to inital value to avoid error
+var selectedPlace = ko.observable(Model.locationList[1]);
 
 
 
@@ -102,13 +102,13 @@ function initMap() {
 			animation: google.maps.Animation.DROP,
 			icon: defaultIcon,
 			id: i
-		})
+		});
 
         console.log(position);
 
 		markers.push(marker);
 
-        // this function will connect the selectedplace and the markers
+        // this function will connect the selectedplace and the marker
         function filterMarkers () {
             if (selectedPlace().id === this.id) {
                 console.log('match');
