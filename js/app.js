@@ -1,34 +1,50 @@
  var Model = {
 	locationList: [
 	{
-		id: "0",
 		name: "Midwood Smokehouse",
 		address: "1401 Central Ave, Charlotte, NC 28205",
 		latlng: {lat: 35.221024,  lng: -80.814854},
-		type: "Barbecue"
+		type: "Barbecue",
+		imgURL: "http://midwoodsmokehouse.com/locations/locations_charlotte_columbia_files/stacks-image-799e4d6-800x480.jpg",
+		showLocation: ko.observable(true)
 	},
 	{
-		id: "1",
+		name: "Queen City Q",
+		address: "225 E 6th St A, Charlotte, NC 28202",
+		latlng: {lat: 35.227664,  lng: -80.838851},
+		type: "Barbecue",
+		imgURL: "http://www.charlotteburgerblog.com/wp-content/uploads/2013/08/queen-city-q-15.jpg",
+		showLocation: ko.observable(true)
+	},
+	{
 		name: "The Capital Grille",
 		address: "201 N Tryon St, Charlotte, NC 28202",
 		latlng: {lat: 35.228327,  lng: -80.841997},
-		type: "Classy"
+		type: "Classy",
+		imgURL: "http://www.greatplacesdirectory.com/spaces/171/scotts-patio.jpg",
+		showLocation: ko.observable(true)
 	},
 	{
-		id: "2",
 		name: "Rooftop 210",
 		address: "210 E Trade St B320, Charlotte, NC 28202",
 		latlng: {lat: 35.225317, lng: -80.842488},
-		type: "Bar"
+		type: "Bar",
+		imgURL: "http://rooftop210.com/images/entertain.jpg",
+		showLocation: ko.observable(true)
 	},
 	{
-		id: "3",
 		name: "Lucky's Bar and Arcade",
 		address: "300 N College St #104, Charlotte, NC 28202",
 		latlng: {lat: 35.227832,  lng: -80.839238},
-		type: "Barcade"
+		type: "Barcade",
+		imgURL: "https://s3-media2.fl.yelpcdn.com/bphoto/VsTEI5nMod-5hPcSU0Qp7w/o.jpg",
+		showLocation: ko.observable(true)
 	}]
 };
+
+
+
+//declaring global selectedPlace variable and setting to inital value to avoid error
 
 
 
@@ -37,24 +53,68 @@ var ViewModel = function () {
 	//blank array for all locations
 	this.location = ko.observableArray([]);
 	this.locationId = ko.observableArray([]);
-    this.selectedPlace = ko.observable();
 
-	//TO DO:  FIX THIS FOREACH LOOP
-	//push each location to a new observableArray
+    //create categoryList array to push categories
+	this.categoryList = [];
+
+    //append types to categoryList
+	for (var i = 0; i < Model.locationList.length; i++) {
+		if (self.categoryList.indexOf(Model.locationList[i].type) === -1) {
+			self.categoryList.push(Model.locationList[i].type);
+		}
+	}
+
+    //created selectedPlace observable
+	this.selectedPlace = ko.observable();
+    this.selectedName = ko.observable();
+
 	Model.locationList.forEach(function(data){
 		self.location.push(data);
 	});
 
-    this.selectedPlace.subscribe(function(newValue) {
+
+	//filters markers and list of locations
+    self.selectedPlace.subscribe(function(newValue) {
 		if (newValue == undefined) {
-			console.log('blah');
+			// show all markers and locations at start
+			self.location().forEach(function(place){
+			place.showLocation(true);
+			place.marker.setVisible(true);
+			});
 		} else {
-            console.log(self.selectedPlace().id);
-            }
+            self.location().forEach(function(place) {
+            	if (place.type === self.selectedPlace()) {
+            		place.showLocation(true);
+            		place.marker.setVisible(true);
+            	} else {
+            		place.showLocation(false);
+            		place.marker.setVisible(false);
+            	}
+            });
+        }
 	}, this);
 
-};
+    self.filterFromList = function (item) {
+        self.selectedName(item.name);
+        self.location().forEach(function(place) {
+            if (place.name === self.selectedName()) {
+                place.showLocation(true);
+                place.marker.setVisible(true);
+            } else {
+                place.showLocation(false);
+                place.marker.setVisible(false);
+            }
+        });
+    };
 
+    self.unfilter = function (item) {
+        self.location().forEach(function (place) {
+                place.showLocation(true);
+                place.marker.setVisible(true);
+        })
+    };
+
+};
 
 
 //declaring global map variable
@@ -63,7 +123,9 @@ var map,
 
 var markers = [];
 
+
 function initMap() {
+    var self = this;
 
 	// Create new google map
 	map = new google.maps.Map(document.getElementById('map'), {
@@ -83,41 +145,34 @@ function initMap() {
 	  content: "test"
 	 });
 
+     //unfilter results when closing infoWindow
+     google.maps.event.addListener(infoWindow, 'closeclick', vm.unfilter);
+
+     google.maps.event.addListener(map, "click", function (event) {
+         infoWindow.close();
+         vm.unfilter();
+     });
+
 	//create an array of markers on initialize
-	for (var i = 0; i < Model.locationList.length; i++) {
+	for (var i = 0; i < vm.location().length; i++) {
 		//get the position from the location array
 
-		var position = Model.locationList[i].latlng;
-		var name = Model.locationList[i].name;
-		var address = Model.locationList[i].address;
+		var position = vm.location()[i].latlng;
+		var name = vm.location()[i].name;
+		var address = vm.location()[i].address;
+        var location = vm.location()[i];
 
 		var marker = new google.maps.Marker({
 			position: position,
+            location: location,
 			title: name,
 			animation: google.maps.Animation.DROP,
 			icon: defaultIcon,
 			id: i
 		});
-
 		markers.push(marker);
 
-        console.log(markers);
-
-
-        // this function will connect the selectedplace and the marker
-
-        function filterMarkers () {
-            for (var i = 0; i < markers.length; i++) {
-                if (VM.selectedPlace().id === marker.id.toString()) {
-                    console.log('match');
-                    markers[i].setMap(map);
-                } else {
-                    markers[i].setMap(null);
-                    console.log(markers[i]);
-                }
-            }
-        };
-
+		vm.location()[i].marker = marker;
 
 		// Two event listeners - one for mouseover, one for mouseout,
 		// to change the colors back and forth.
@@ -128,8 +183,14 @@ function initMap() {
 		  this.setIcon(defaultIcon);
 		});
 		marker.addListener('click', function() {
+            var self = this;
             populateInfoWindow(this, infoWindow);
+            this.setAnimation(google.maps.Animation.BOUNCE);
+            setTimeout(function(){ self.setAnimation(null); }, 1425);
+            vm.filterFromList(this.location);
+            console.log(this.title);
         });
+
 	}
 
 	showMarkers();
@@ -158,8 +219,6 @@ function showMarkers() {
     map.fitBounds(bounds);
 };
 
-console.log(markers);
-
 function populateInfoWindow(marker, infowindow) {
  	if (infowindow.marker != marker) {
 		infowindow.marker = marker;
@@ -170,5 +229,5 @@ function populateInfoWindow(marker, infowindow) {
  	}
 };
 
-var VM = new ViewModel();
-ko.applyBindings(VM);
+var vm = new ViewModel();
+ko.applyBindings(vm);

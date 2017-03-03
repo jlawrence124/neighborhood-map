@@ -1,13 +1,29 @@
+ul {
+    list-style: none;
+}
+body {
+    max-width: 1000px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* removes tabfocus outline for onfocus handler */
+
+.location-click:focus {
+    outline: none;
+}
 #map {
     height: 400px;
-    width: 80%;
-}
-#featured ul {
-    list-style: none;
+    margin-left: 5%;
+    margin-right: 5%;
 }
 .hidden {
     display: none;
 }
 .showing {
     color: red;
+}
+.location-img {
+    max-width: 10%;
+    display: inline;
 }

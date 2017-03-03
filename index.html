@@ -13,18 +13,26 @@
 				<h1>Charlotte Search</h1>
 			</div>
 			<!--<input type="text" id="search-bar" placeholder="Search Here! "></input> -->
-			<select id="featured-drop" data-bind="options: location,
-												  optionsText: 'type',
+			<select id="featured-drop" data-bind="options: categoryList,
 												  value: selectedPlace,
 												  optionsCaption: 'What kind of place?'">
 			</select>
+			<div data-bind="ViewModel">
+				<button id="show-all" data-bind="click: unfilter">SHOW ALL</button>
+			</div>
 		</div><br>
-		<div id="map">MAP GOES HERE</div>
-		<div id="featured" data-bind="visible: selectedPlace">
-			<span data-bind="text: selectedPlace() ? selectedPlace().filter: 'unknown'"></span>
-			<br>
-			<span data-bind="text: selectedPlace() ? selectedPlace().address: 'unknown'"></span>
-		</div>
+		<div id="map"></div>
+		<br>
+		<ul data-bind="foreach: location">
+			<a class="location-click" tabindex="0" data-bind="click: $parent.filterFromList, event: { blur: $parent.unfilter } ">
+				<li class="location-block" data-bind="visible: showLocation">
+					<img class="location-img" data-bind="attr: {src: imgURL}"></img>
+					<h4 data-bind="text: name"></h4>
+					<hr>
+				</li>
+			</a>
+		</ul>
+
 
 		<script src="http://ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js"></script>
 		<script type='text/javascript' src='js/lib/knockout-3.2.0.js'></script>
