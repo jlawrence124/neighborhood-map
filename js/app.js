@@ -20,7 +20,7 @@
              },
              type: "Barbecue",
              imgURL: "http://www.charlotteburgerblog.com/wp-content/uploads/2013/08/queen-city-q-15.jpg",
-             yelp: "midwood-smokehouse-charlotte",
+             yelp: "queen-city-q-charlotte",
              showLocation: ko.observable(true)
          },
          {
@@ -32,7 +32,7 @@
              },
              type: "Classy",
              imgURL: "http://www.greatplacesdirectory.com/spaces/171/scotts-patio.jpg",
-             yelp: "midwood-smokehouse-charlotte",
+             yelp: "the-capital-grille-charlotte",
              showLocation: ko.observable(true)
          },
          {
@@ -44,7 +44,7 @@
              },
              type: "Bar",
              imgURL: "http://rooftop210.com/images/entertain.jpg",
-             yelp: "midwood-smokehouse-charlotte",
+             yelp: "rooftop-210-charlotte-2",
              showLocation: ko.observable(true)
          },
          {
@@ -56,7 +56,7 @@
              },
              type: "Barcade",
              imgURL: "https://s3-media2.fl.yelpcdn.com/bphoto/VsTEI5nMod-5hPcSU0Qp7w/o.jpg",
-             yelp: "midwood-smokehouse-charlotte",
+             yelp: "luckys-bar-and-arcade-charlotte",
              showLocation: ko.observable(true)
          }
      ]
@@ -71,8 +71,6 @@
      //create categoryList array to push categories
      this.categoryList = [];
 
-
-
      //append types to categoryList
      for (var i = 0; i < Model.locationList.length; i++) {
          if (self.categoryList.indexOf(Model.locationList[i].type) === -1) {
@@ -84,20 +82,14 @@
      this.selectedPlace = ko.observable();
      this.selectedName = ko.observable();
      this.selectedYelp = ko.observable();
+     this.selectedImg = ko.observable();
 
      Model.locationList.forEach(function(data) {
          self.location.push(data);
      });
 
-     self.selectedYelp(Model.locationList[2].yelp);
-
-     console.log(self.selectedYelp());
-     /*
-     //change this from looping to updating!!!
-     for (var i = 0; i < Model.locationList.length; i++) {
-         self.selectedYelp(Model.locationList[i].yelp);
-     }
-     */
+     //set initial value to avoid API failure
+     self.selectedYelp(Model.locationList[0].yelp);
 
      //filters markers and list of locations
      self.selectedPlace.subscribe(function(newValue) {
@@ -106,6 +98,8 @@
              self.location().forEach(function(place) {
                  place.showLocation(true);
                  place.marker.setVisible(true);
+                 marker.infoWindow.close();
+                 vm.unfilter();
              });
          } else {
              self.location().forEach(function(place) {
@@ -127,6 +121,8 @@
              if (place.name === self.selectedName()) {
                  place.showLocation(true);
                  place.marker.setVisible(true);
+                 self.selectedYelp(place.yelp);
+                 console.log(self.selectedYelp());
              } else {
                  place.showLocation(false);
                  place.marker.setVisible(false);
@@ -172,13 +168,16 @@
          data: parameters,
          cache: true, // This is crucial to include as well to prevent jQuery from adding on a cache-buster parameter "_=23489489749837", invalidating our oauth-signature
          dataType: 'jsonp',
-         success: function(results) {
-             // Do stuff with results
-             console.log("Yelp! Success");
+         success: function(data) {
+             console.log("YELP success");
+             console.log(data);
+
          },
-         error: function() {
+         error: function(e) {
              // Do stuff on fail
-             console.log("Yelp! Fail!");
+             console.log("YELP Fail!");
+             console.log(e.error());
+             alert("api failure!");
          }
      };
 
@@ -194,16 +193,8 @@
 
  var markers = [];
 
-
  function initMap() {
      var self = this;
-
-     //trace function for debugging
-     function trace(message) {
-         if (typeof console != 'undefined') {
-             console.log(message);
-         }
-     }
 
      // Create new google map
      map = new google.maps.Map(document.getElementById('map'), {
@@ -214,7 +205,6 @@
          zoom: 14
      });
 
-     console.log('starting map');
 
      // Styling the marker
      var defaultIcon = makeMarkerIcon('DC143C');
@@ -222,28 +212,22 @@
      // mouse over icon
      var highlightedIcon = makeMarkerIcon('FFFFFF');
 
-     infoWindow = new google.maps.InfoWindow({
-         content: "test"
+     //need to change this and make it dynamic.  Then this will work.
+     var infoContent = '<div id="info-content">' + '<img class="info-picture" src="' + vm.selectedImg() + '"></img></div>"'
+
+     var myInfoWindow = new google.maps.InfoWindow({
      });
-
-     //unfilter results when closing infoWindow
-     google.maps.event.addListener(infoWindow, 'closeclick', vm.unfilter);
-
-     google.maps.event.addListener(map, "click", function(event) {
-         infoWindow.close();
-         vm.unfilter();
-     });
-
 
      //create an array of markers on initialize
      for (var i = 0; i < vm.location().length; i++) {
-         //get the position from the location array
 
-         var position = vm.location()[i].latlng;
-         var name = vm.location()[i].name;
-         var address = vm.location()[i].address;
-         var location = vm.location()[i];
-         var yelp_id = vm.location()[i].yelp;
+         //get info from location array
+         var position = vm.location()[i].latlng,
+             name = vm.location()[i].name,
+             address = vm.location()[i].address,
+             location = vm.location()[i],
+             yelp_id = vm.location()[i].yelp,
+             image_url = vm.location()[i].imgURL;
 
          var marker = new google.maps.Marker({
              position: position,
@@ -252,9 +236,21 @@
              animation: google.maps.Animation.DROP,
              icon: defaultIcon,
              yelp_id: yelp_id,
-             id: i
+             id: i,
+             image_url: image_url,
+             infoWindow: myInfoWindow
          });
+
+         //unfilter results when closing infoWindow
+         google.maps.event.addListener(marker.infoWindow, 'closeclick', vm.unfilter);
+
+         google.maps.event.addListener(map, "click", function(event) {
+             marker.infoWindow.close();
+             vm.unfilter();
+         });
+
          markers.push(marker);
+
 
          vm.location()[i].marker = marker;
 
@@ -278,10 +274,16 @@
 
              //filter out other results when clicking on marker
              vm.filterFromList(this.location);
-             console.log(this.title);
 
+             //change selectedYelp value when clicking
+             vm.selectedYelp(this.yelp_id);
+             vm.selectedImg(this.image_url);
+             this.infoWindow.setContent(
+                 '<div id="info-content">' + '<img src="' + vm.selectedImg() + '"></img></div>"'
+             );
+
+             this.infoWindow.open(map, this);
          });
-
      }
      showMarkers();
  }
@@ -307,16 +309,6 @@
          bounds.extend(markers[i].position);
      }
      map.fitBounds(bounds);
- };
-
- function populateInfoWindow(marker, infowindow) {
-     if (infowindow.marker != marker) {
-         infowindow.marker = marker;
-         infowindow.open(map, marker);
-         infowindow.addListener('closeclick', function() {
-             infowindow.marker = null;
-         });
-     }
  };
 
  var vm = new ViewModel();

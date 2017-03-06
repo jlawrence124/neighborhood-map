@@ -17,6 +17,9 @@ body {
     margin-left: 5%;
     margin-right: 5%;
 }
+.info-picture {
+    max-width: 10px;
+}
 .hidden {
     display: none;
 }
