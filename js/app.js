@@ -1,3 +1,4 @@
+
  var Model = {
      locationList: [{
              name: "Midwood Smokehouse",
@@ -8,7 +9,7 @@
              },
              type: "Barbecue",
              imgURL: "http://midwoodsmokehouse.com/locations/locations_charlotte_columbia_files/stacks-image-799e4d6-800x480.jpg",
-             yelp: "midwood-smokehouse-charlotte",
+             yelp: "https://api.yelp.com/v2/business/midwood-smokehouse-charlotte",
              showLocation: ko.observable(true)
          },
          {
@@ -20,7 +21,7 @@
              },
              type: "Barbecue",
              imgURL: "http://www.charlotteburgerblog.com/wp-content/uploads/2013/08/queen-city-q-15.jpg",
-             yelp: "queen-city-q-charlotte",
+             yelp: "https://api.yelp.com/v2/business/queen-city-q-charlotte",
              showLocation: ko.observable(true)
          },
          {
@@ -32,7 +33,7 @@
              },
              type: "Classy",
              imgURL: "http://www.greatplacesdirectory.com/spaces/171/scotts-patio.jpg",
-             yelp: "the-capital-grille-charlotte",
+             yelp: "https://api.yelp.com/v2/business/the-capital-grille-charlotte",
              showLocation: ko.observable(true)
          },
          {
@@ -44,7 +45,7 @@
              },
              type: "Bar",
              imgURL: "http://rooftop210.com/images/entertain.jpg",
-             yelp: "rooftop-210-charlotte-2",
+             yelp: "https://api.yelp.com/v2/business/rooftop-210-charlotte-2",
              showLocation: ko.observable(true)
          },
          {
@@ -56,94 +57,20 @@
              },
              type: "Barcade",
              imgURL: "https://s3-media2.fl.yelpcdn.com/bphoto/VsTEI5nMod-5hPcSU0Qp7w/o.jpg",
-             yelp: "luckys-bar-and-arcade-charlotte",
+             yelp: "https://api.yelp.com/v2/business/luckys-bar-and-arcade-charlotte",
              showLocation: ko.observable(true)
          }
      ]
  };
 
-
- var ViewModel = function() {
+ var Yelp = function(i) {
      var self = this;
-     //blank array for all locations
-     this.location = ko.observableArray([]);
-
-     //create categoryList array to push categories
-     this.categoryList = [];
-
-     //append types to categoryList
-     for (var i = 0; i < Model.locationList.length; i++) {
-         if (self.categoryList.indexOf(Model.locationList[i].type) === -1) {
-             self.categoryList.push(Model.locationList[i].type);
-         }
-     }
-
-     //created selectedPlace observable
-     this.selectedPlace = ko.observable();
-     this.selectedName = ko.observable();
-     this.selectedYelp = ko.observable();
-     this.selectedImg = ko.observable();
-
-     Model.locationList.forEach(function(data) {
-         self.location.push(data);
-     });
-
-     //set initial value to avoid API failure
-     self.selectedYelp(Model.locationList[0].yelp);
-
-     //filters markers and list of locations
-     self.selectedPlace.subscribe(function(newValue) {
-         if (newValue == undefined) {
-             // show all markers and locations at start
-             self.location().forEach(function(place) {
-                 place.showLocation(true);
-                 place.marker.setVisible(true);
-                 marker.infoWindow.close();
-                 vm.unfilter();
-             });
-         } else {
-             self.location().forEach(function(place) {
-                 if (place.type === self.selectedPlace()) {
-                     place.showLocation(true);
-                     place.marker.setVisible(true);
-                 } else {
-                     place.showLocation(false);
-                     place.marker.setVisible(false);
-                 }
-             });
-         }
-     }, this);
-
-     //filter items from the list view
-     self.filterFromList = function(item) {
-         self.selectedName(item.name);
-         self.location().forEach(function(place) {
-             if (place.name === self.selectedName()) {
-                 place.showLocation(true);
-                 place.marker.setVisible(true);
-                 self.selectedYelp(place.yelp);
-                 console.log(self.selectedYelp());
-             } else {
-                 place.showLocation(false);
-                 place.marker.setVisible(false);
-             }
-         });
-     };
-
-     //remove items from view when not selected
-     self.unfilter = function(item) {
-         self.location().forEach(function(place) {
-             place.showLocation(true);
-             place.marker.setVisible(true);
-         })
-     };
-
      // YELP API AUTHENTICATION
      function nonce_generate() {
          return (Math.floor(Math.random() * 1e12).toString());
      }
 
-     var yelp_url = 'http://api.yelp.com/v2/business/' + self.selectedYelp();
+     var yelp_url = Model.locationList[i].yelp;
 
      var YELP_KEY = 'khBkEOW5FohZSnMNSp9NlQ',
          YELP_TOKEN = 'sv3hcY_HyOH2WdjWuEjCHbDXhhLwnz_X',
@@ -169,31 +96,93 @@
          cache: true, // This is crucial to include as well to prevent jQuery from adding on a cache-buster parameter "_=23489489749837", invalidating our oauth-signature
          dataType: 'jsonp',
          success: function(data) {
-             console.log("YELP success");
-             console.log(data);
-
+             vm.location()[i].data = data;
+             vm.location()[i].rating = data.rating_img_url;
+             vm.location()[i].review = data.snippet_text;
+             vm.location()[i].yelpIMG = data.snippet_image_url;
          },
          error: function(e) {
              // Do stuff on fail
              console.log("YELP Fail!");
              console.log(e.error());
-             alert("api failure!");
          }
      };
-
-     // Send AJAX query via jQuery library.
-     $.ajax(settings);
-
+      $.ajax(settings)
  };
 
 
- //declaring global map variable
- var map,
-     infoWindow;
+  var ViewModel = function() {
+      var self = this;
+      //blank array for all locations
+      this.location = ko.observableArray([]);
 
- var markers = [];
+      //create categoryList array to push categories
+      this.categoryList = [];
 
- function initMap() {
+      //append types to categoryList
+      for (var i = 0; i < Model.locationList.length; i++) {
+          if (self.categoryList.indexOf(Model.locationList[i].type) === -1) {
+              self.categoryList.push(Model.locationList[i].type);
+          }
+      }
+
+      //created selected observables
+      this.selectedPlace = ko.observable();
+      this.selectedName = ko.observable();
+      this.selectedImg = ko.observable();
+
+      Model.locationList.forEach(function(data) {
+          self.location.push(data);
+      });
+
+      //filters markers and list of locations
+      this.selectedPlace.subscribe(function(newValue) {
+          if (newValue == undefined) {
+              // show all markers and locations at start
+              self.location().forEach(function(place) {
+                  place.showLocation(true);
+                  place.marker.setVisible(true);
+                  place.marker.infoWindow.close();
+                  self.unfilter();
+              });
+          } else {
+              self.location().forEach(function(place) {
+                  if (place.type === self.selectedPlace()) {
+                      place.showLocation(true);
+                      place.marker.setVisible(true);
+                  } else {
+                      place.showLocation(false);
+                      place.marker.setVisible(false);
+                  }
+              });
+          }
+      }, this);
+
+      //filter items from the list view
+      this.filterFromList = function(item) {
+          self.selectedName(item.name);
+          self.location().forEach(function(place) {
+              if (place.name === self.selectedName()) {
+                  place.showLocation(true);
+                  place.marker.setVisible(true);
+              } else {
+                  place.showLocation(false);
+                  place.marker.setVisible(false);
+              }
+          });
+      };
+
+      //remove items from view when not selected
+      this.unfilter = function(item) {
+          self.location().forEach(function(place) {
+              place.showLocation(true);
+              place.marker.setVisible(true);
+          })
+      };
+
+  };
+
+var initMap = function () {
      var self = this;
 
      // Create new google map
@@ -205,6 +194,9 @@
          zoom: 14
      });
 
+     for (var i = 0; i < Model.locationList.length; i++) {
+        Yelp(i);
+        }
 
      // Styling the marker
      var defaultIcon = makeMarkerIcon('DC143C');
@@ -212,81 +204,81 @@
      // mouse over icon
      var highlightedIcon = makeMarkerIcon('FFFFFF');
 
-     //need to change this and make it dynamic.  Then this will work.
-     var infoContent = '<div id="info-content">' + '<img class="info-picture" src="' + vm.selectedImg() + '"></img></div>"'
-
-     var myInfoWindow = new google.maps.InfoWindow({
-     });
+     var myInfoWindow = new google.maps.InfoWindow();
 
      //create an array of markers on initialize
-     for (var i = 0; i < vm.location().length; i++) {
+         for (var i = 0; i < vm.location().length; i++) {
+             var that = this;
 
-         //get info from location array
-         var position = vm.location()[i].latlng,
-             name = vm.location()[i].name,
-             address = vm.location()[i].address,
-             location = vm.location()[i],
-             yelp_id = vm.location()[i].yelp,
-             image_url = vm.location()[i].imgURL;
+             //get info from location array
+             var position = vm.location()[i].latlng,
+                 name = vm.location()[i].name,
+                 address = vm.location()[i].address,
+                 review = vm.location()[i].review,
+                 image_url = vm.location()[i].yelpIMG,
+                 rating = vm.location()[i].rating,
+                 location = vm.location()[i];
 
-         var marker = new google.maps.Marker({
-             position: position,
-             location: location,
-             title: name,
-             animation: google.maps.Animation.DROP,
-             icon: defaultIcon,
-             yelp_id: yelp_id,
-             id: i,
-             image_url: image_url,
-             infoWindow: myInfoWindow
-         });
+             var marker = new google.maps.Marker({
+                 position: position,
+                 location: location,
+                 title: name,
+                 animation: google.maps.Animation.DROP,
+                 icon: defaultIcon,
+                 review: review,
+                 id: i,
+                 image_url: image_url,
+                 infoWindow: myInfoWindow
+             });
 
-         //unfilter results when closing infoWindow
-         google.maps.event.addListener(marker.infoWindow, 'closeclick', vm.unfilter);
+             //unfilter results when closing infoWindow
+             google.maps.event.addListener(marker.infoWindow, 'closeclick', vm.unfilter);
 
-         google.maps.event.addListener(map, "click", function(event) {
-             marker.infoWindow.close();
-             vm.unfilter();
-         });
+             google.maps.event.addListener(map, "click", function(event) {
+                 marker.infoWindow.close();
+                 vm.unfilter();
+             });
 
-         markers.push(marker);
+             markers.push(marker);
 
+             vm.location()[i].marker = marker;
 
-         vm.location()[i].marker = marker;
+             console.log(vm.location()[i].rating);
 
-         // Two event listeners - one for mouseover, one for mouseout,
-         // to change the colors back and forth.
-         marker.addListener('mouseover', function() {
-             this.setIcon(highlightedIcon);
-         });
-         marker.addListener('mouseout', function() {
-             this.setIcon(defaultIcon);
-         });
-         marker.addListener('click', function() {
-             var self = this;
+             // Two event listeners - one for mouseover, one for mouseout,
+             // to change the colors back and forth.
+             marker.addListener('mouseover', function() {
+                 this.setIcon(highlightedIcon);
+             });
+             marker.addListener('mouseout', function() {
+                 this.setIcon(defaultIcon);
+             });
+             marker.addListener('click', function() {
+                 var self = this;
 
-             //animate marker on click
-             this.setAnimation(google.maps.Animation.BOUNCE);
-             //kill animation after 1425ms
-             setTimeout(function() {
-                 self.setAnimation(null);
-             }, 1425);
+                 //animate marker on click
+                 this.setAnimation(google.maps.Animation.BOUNCE);
+                 //kill animation after 1425ms
+                 setTimeout(function() {
+                     self.setAnimation(null);
+                 }, 1425);
 
-             //filter out other results when clicking on marker
-             vm.filterFromList(this.location);
+                 //filter out other results when clicking on marker
+                 vm.filterFromList(this.location);
 
-             //change selectedYelp value when clicking
-             vm.selectedYelp(this.yelp_id);
-             vm.selectedImg(this.image_url);
-             this.infoWindow.setContent(
-                 '<div id="info-content">' + '<img src="' + vm.selectedImg() + '"></img></div>"'
-             );
+                 vm.selectedImg(this.image_url);
 
-             this.infoWindow.open(map, this);
-         });
-     }
+                 this.infoWindow.setContent(
+                    // '<div id="info-content">' + '<img src="' + vm.location()[i].review + '"></img></div>"'
+                 );
+
+                 this.infoWindow.open(map, this);
+             });
+         }
      showMarkers();
  }
+
+
 
  //make new styled marker
  function makeMarkerIcon(markerColor) {
@@ -310,6 +302,14 @@
      }
      map.fitBounds(bounds);
  };
+
+ //declaring global map variable
+ var map,
+     infoWindow;
+
+ var markers = [];
+
+
 
  var vm = new ViewModel();
  ko.applyBindings(vm);
