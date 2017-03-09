@@ -1,10 +1,9 @@
 ul {
     list-style: none;
+    padding: 0 10% 0 10%;
 }
 body {
-    max-width: 1000px;
-    margin-left: auto;
-    margin-right: auto;
+    margin: auto;
 }
 
 /* removes tabfocus outline for onfocus handler */
@@ -14,8 +13,7 @@ body {
 }
 #map {
     height: 400px;
-    margin-left: 5%;
-    margin-right: 5%;
+    margin: 2% 5%;
 }
 .info-picture {
     max-width: 10px;
@@ -26,7 +24,23 @@ body {
 .showing {
     color: red;
 }
+.location-title {
+    display: inline-block;
+    margin-top: 0px;
+}
 .location-img {
-    max-width: 10%;
+    max-width: 20%;
     display: inline;
+}
+.top-container {
+    align-items: center;
+}
+.search-and-show {
+    display: flex;
+    vertical-align: center;
+    align-items: center;
+}
+#location-snippet {
+    text-decoration: none;
+    color: black;
 }

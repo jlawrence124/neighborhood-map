@@ -1,47 +1,51 @@
 <!DOCTYPE html>
 <html>
-	<head>
-		<title>Neighborhood Map</title>
-		<meta charset="utf-8">
-		<meta name="viewport" content="initial-scale=1.0">
-		<link rel="stylesheet" href="css/style.css">
-		<link rel="stylesheet" href="css/bootstrap.min.css">
-		<script src="bower_components/oauth-signature/dist/oauth-signature.js"></script>
-	</head>
-	<body>
-		<div>
-			<div>
-				<h1>Charlotte Search</h1>
-			</div>
-			<!--<input type="text" id="search-bar" placeholder="Search Here! "></input> -->
+
+<head>
+	<title>Neighborhood Map</title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="initial-scale=1.0">
+	<link rel="stylesheet" href="css/style.css">
+	<link rel="stylesheet" href="css/bootstrap.min.css">
+	<script src="bower_components/oauth-signature/dist/oauth-signature.js"></script>
+</head>
+
+<body>
+	<div class="col-md-12 top-container">
+		<div class="col-md-8">
+			<h1>Charlotte Search</h1>
+		</div>
+		<!--<input type="text" id="search-bar" placeholder="Search Here! "></input> -->
+		<div class="col-md-4 search-and-show">
 			<select id="featured-drop" data-bind="options: categoryList,
 												  value: selectedPlace,
 												  optionsCaption: 'What kind of place?'">
-			</select>
-			<div data-bind="ViewModel">
-				<button id="show-all" data-bind="click: unfilter">SHOW ALL</button>
-			</div>
-		</div><br>
-		<div id="map"></div>
-		<br>
-		<ul data-bind="foreach: location">
-			<a class="location-click" tabindex="0" data-bind="click: $parent.filterFromList, event: { blur: $parent.unfilter } ">
-				<li class="location-block" data-bind="visible: showLocation">
-					<img class="location-img" data-bind="attr: {src: imgURL}"></img>
-					<h4 data-bind="text: name"></h4>
-					<hr>
-				</li>
-			</a>
-		</ul>
+				</select>
+				<div data-bind="ViewModel">
+					<button id="show-all" data-bind="click: unfilter">SHOW ALL</button>
+				</div>
+		</div>
+	</div><br>
+	<div class="col-md-10" id="map"></div>
+	<ul data-bind="foreach: location">
+		<a class="location-click col-md-10" tabindex="0" data-bind="click: $parent.filterFromList, event: { blur: $parent.unfilter } ">
+			<li class="location-block" data-bind="visible: showLocation">
+				<img class="location-img" alt="sample picture of location" data-bind="attr: {src: imgURL}"></img>
+				<p class="location-title" data-bind="text: name"></p>
+				<div id="location-snippet">Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure
+					dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>
+				<hr>
+			</li>
+		</a>
+	</ul>
 
 
-		<script src="http://ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js"></script>
-		<script type='text/javascript' src='js/lib/knockout-3.2.0.js'></script>
-		<script type="text/javascript" src="js/app.js"></script>
-		<script async defer
-			src=
-			"https://maps.googleapis.com/maps/api/js?libraries=places,geometry,drawing&key=AIzaSyDOuOrqZAUImHCtz4pwIxHT09Ch62kDfIs&v=3&callback=initMap">
-		</script>
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js"></script>
+	<script type='text/javascript' src='js/lib/knockout-3.2.0.js'></script>
+	<script type="text/javascript" src="js/app.js"></script>
+	<script async defer src="https://maps.googleapis.com/maps/api/js?libraries=places,geometry,drawing&key=AIzaSyDOuOrqZAUImHCtz4pwIxHT09Ch62kDfIs&v=3&callback=initMap">
+	</script>
 
-	</body>
+</body>
+
 </html>
