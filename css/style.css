@@ -1,28 +1,65 @@
 ul {
     list-style: none;
-    padding: 0 10% 0 10%;
+    padding: 0;
 }
 body {
     margin: auto;
+    max-width: 100%;
+    color: #DCDCDC;
 }
 
-/* removes tabfocus outline for onfocus handler */
+/* IDs */
 
-.location-click:focus {
-    outline: none;
+#header-menu {
+    font-size: 30px;
+    display: none;
+}
+#body-container {
+    max-width: 100%;
 }
 #map {
     height: 400px;
     margin: 2% 5%;
+    max-width: 100%;
+}
+#location-snippet {
+    text-decoration: none;
+    color: black;
+}
+#location-list {
+    padding-left: 5%;
+    padding-right: 5%;
+}
+#info-content-left {
+    width: 40%;
+}
+#info-content-right {
+    width: 60%;
+    float: right;
+}
+#featured-drop {
+    vertical-align: bottom;
+}
+
+/* Classes */
+
+.location-title {
+    font-size: 20px;
+}
+
+/*removes outline for tabindex*/
+
+.location-block:focus {
+    outline: none;
+}
+.top-container {
+    max-width: 100%;
 }
 .info-picture {
     max-width: 10px;
 }
-.hidden {
-    display: none;
-}
-.showing {
-    color: red;
+.info-phone {
+    margin-bottom: 0;
 }
 .location-title {
     display: inline-block;
@@ -33,14 +70,81 @@ body {
     display: inline;
 }
 .top-container {
-    align-items: center;
-}
-.search-and-show {
     display: flex;
-    vertical-align: center;
     align-items: center;
 }
-#location-snippet {
-    text-decoration: none;
-    color: black;
+.drop {
+    height: 100%;
+}
+.location-block {
+    cursor: pointer;
+}
+.info-phone {
+    display: flex;
+}
+.vo {
+    margin-bottom: 0;
+}
+
+/* responsiveness */
+
+@media screen and (max-width: 450px) {
+    hr {
+        display: none;
+    }
+    #header-menu {
+        display: inline-block;
+        padding: 1em 0.3em 1em 0.5em;
+        cursor: pointer;
+        float: left;
+    }
+    #header-menu {
+        text-decoration: none;
+    }
+    #map {
+        height: 70vh;
+    }
+    #info-content-left {
+        max-width: 50%;
+        display: inline;
+    }
+    #info-content-right {
+        max-width: 50%;
+        display: inline;
+        float: right;
+    }
+    .location-block {
+        margin: auto;
+    }
+    .drop {
+        display: none;
+    }
+    .yelp-info-img {
+        max-width: 100%;
+    }
+    .nav {
+        z-index: 10;
+        background-color: #fff;
+        width: 200px;
+        position: absolute;
+        top: -20px;
+        font-size: 20px;
+        padding-top: 30px;
+        -webkit-transform: translate(-300px, 0);
+        transform: translate(-300px, 0);
+        transition: transform 0.3s ease;
+    }
+    .nav.open {
+        -webkit-transform: translate(0, 0);
+        transform: translate(0, 0);
+    }
+    .location-title {
+        vertical-align: middle;
+    }
+    .location-img {
+        display: none;
+    }
+    .location-snippet {
+        display: none;
+    }
 }
