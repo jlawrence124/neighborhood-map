@@ -112,7 +112,7 @@ var Yelp = function(i) {
         //on error, alert user
         error: function(e) {
             // Do stuff on fail
-            console.log("YELP Fail!");
+            alert("Yelp! Api has failed! Have you checked your internet connection?");
             console.log(e.error());
         }
     };
@@ -179,6 +179,8 @@ var ViewModel = function() {
         self.location().forEach(function(place) {
             place.showLocation(true);
             place.marker.setVisible(true);
+            //after unfilter, set dropdown menu to original value
+            document.getElementById("featured-drop").selectedIndex = 0;
         })
     };
 
@@ -271,6 +273,9 @@ var initMap = function() {
                 }
             });
 
+            //set dropdown menu to original value
+            //$("#featured-drop").val("What kind of place?");
+
             //animate marker on click
             this.setAnimation(google.maps.Animation.BOUNCE);
 
@@ -334,11 +339,10 @@ function showMarkers() {
     map.fitBounds(bounds);
 };
 
-//declaring global map variable
+//declaring global variables
 var map,
     infoWindow;
-
-var markers = [];
+    markers = [];
 
 //displays alert if google maps api is not loading
 var gmerror = function () {
