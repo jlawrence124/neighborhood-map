@@ -107,13 +107,13 @@ var Yelp = function(i) {
                 vm.location()[i].marker.url = data.url;
                 vm.location()[i].marker.data = data;
             }
-
         },
-        //on error, alert user
         error: function(e) {
-            // Do stuff on fail
-            alert("Yelp! Api has failed! Have you checked your internet connection?");
-            console.log(e.error());
+            if (alerted === false) {
+                alert("Yelp! Api has failed! Have you checked your internet connection?");
+                //console.log(e.error());
+                alerted = true;
+            }
         }
     };
     $.ajax(settings)
@@ -180,10 +180,9 @@ var ViewModel = function() {
             place.showLocation(true);
             place.marker.setVisible(true);
             //after unfilter, set dropdown menu to original value
-            document.getElementById("featured-drop").selectedIndex = 0;
+            self.selectedPlace(undefined);
         })
     };
-
 };
 
 
@@ -342,6 +341,7 @@ function showMarkers() {
 //declaring global variables
 var map,
     infoWindow;
+    alerted = false;
     markers = [];
 
 //displays alert if google maps api is not loading
